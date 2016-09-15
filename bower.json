@@ -1,0 +1,13 @@
+{
+  "name": "build_game",
+  "authors": [
+    "Viktor Martyniuk <viktor.mart@gmail.com>"
+  ],
+  "description": "build game",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "pixi.js": "^4.0.1",
+    "requirejs": "^2.3.1"
+  }
+}

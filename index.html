@@ -6,9 +6,24 @@
               content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Game</title>
+        <style>
+            .content {
+                display: inline-block;
+                margin-right: 30px;
+            }
+
+            .align-v-top {
+                vertical-align: top;
+            }
+        </style>
     </head>
     <body>
-        <script type="text/javascript" src="js/bower_components/pixi.js/bin/pixi.js"></script>
-        <script type="text/javascript" src="js/game.js"></script>
+        <div id="main" class="content"></div>
+        <div id="secondary" class="content align-v-top"></div>
+
+        <!--<script type="text/javascript" src="js/libs/pixi.js/bin/pixi.js"></script>-->
+        <script type="text/javascript" src="js/libs/pixi.js/bin/pixi.min.js"></script>
+        <!--<script type="text/javascript" data-main="js/src/game" src="js/libs/requirejs/require.js"></script>-->
+        <script type="text/javascript" data-main="js/build/build_game.min" src="js/libs/requirejs/require.js"></script>
     </body>
 </html>
