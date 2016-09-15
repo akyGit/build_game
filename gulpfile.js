@@ -12,7 +12,7 @@ gulp.task('bower', function() {
     return bower();
 });
 
-gulp.task('default', ['bower'], function() {
+gulp.task('minification', function() {
     gulp.src("./js/src/**/*.js").
         pipe(requirejsOptimize()).
         pipe(gulp.dest("./js/build")).
@@ -21,4 +21,8 @@ gulp.task('default', ['bower'], function() {
         pipe(rename("build_game.min.js")).
         pipe(uglify()).
         pipe(gulp.dest("./js/build"));
+});
+
+gulp.task('default', ['bower','minification'], function() {
+
 });
