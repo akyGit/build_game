@@ -1,117 +1,96 @@
-/**
- * Created by Aky on 14.09.2016.
- */
+// TODO simplify
 define(
 [
-    'Figure/FigureI',
-    'Figure/FigureO',
-    'Figure/FigureL',
-    'Figure/FigureJ',
-    'Figure/FigureS',
-    'Figure/FigureZ',
-    'Figure/FigureT',
-    'Constants'
-], function(
-    FigureI,
-    FigureO,
-    FigureL,
-    FigureJ,
-    FigureS,
-    FigureZ,
-    FigureT,
-    Constants
-    ){
+    'Figure/FigureI', 'Figure/FigureO', 'Figure/FigureL', 'Figure/FigureJ',
+    'Figure/FigureS', 'Figure/FigureZ', 'Figure/FigureT', 'Constants'
+], function(FigureI, FigureO, FigureL, FigureJ, FigureS, FigureZ, FigureT, Constants){
     function Logic(grid, gridS) {
-        this.currentFigure = null;
-        this.nextFigure = null;
+        this._currentFigure = null;
+        this._nextFigure = null;
 
-        this.figures = [];
-        this.figures[0] = new FigureI();
-        this.figures[1] = new FigureO();
-        this.figures[2] = new FigureL();
-        this.figures[3] = new FigureJ();
-        this.figures[4] = new FigureS();
-        this.figures[5] = new FigureZ();
-        this.figures[6] = new FigureT();
+        this._figures = [];
+        this._figures.push(new FigureI());
+        this._figures.push(new FigureO());
+        this._figures.push(new FigureL());
+        this._figures.push(new FigureJ());
+        this._figures.push(new FigureS());
+        this._figures.push(new FigureZ());
+        this._figures.push(new FigureT());
 
-        this.glasse = [];
+        this._glasseBuffer = [];
 
         this._time = 0;
-        this.gridMain = grid;
-        this.gridSecondary = gridS;
+        this._gridMain = grid;
+        this._gridSecondary = gridS;
 
-        this.score = 0;
-        this.scoreText = new PIXI.Text( this.score, {
-            fontFamily: 'Arial',
-            fontSize: 24,
-            fill: 0x00ff00,
-            align: 'left'
-        });
-
-        this.needRotate = false;
+        this._score = 0;
+        this._needRotate = false;
     }
 
     Logic.prototype.constructor = Logic;
 
-// TODO divide init function into init function and reset function
     Logic.prototype.init = function () {
-        this.currentFigure = this.figures[Math.floor(Math.random() * this.figures.length)];
-        this.currentFigure.row = 0;
-        this.currentFigure.col = Math.floor(this.gridMain.cols / 2);
-        this.currentFigure.setStateAndUpdate(Math.floor(Math.random() * this.currentFigure.numberOfStates));
+        // TODO divide init function into init function and reset function
+        this._currentFigure = this._figures[Math.floor(Math.random() * this._figures.length)];
+        this._currentFigure.row = 0;
+        this._currentFigure.col = Math.floor(this._gridMain._cols / 2);
+        this._currentFigure.setStateAndUpdate(Math.floor(Math.random() * this._currentFigure.numberOfStates));
 
         do {
-            this.nextFigure = this.figures[Math.floor(Math.random() * this.figures.length)];
-        } while (this.nextFigure == this.currentFigure);
+            this._nextFigure = this._figures[Math.floor(Math.random() * this._figures.length)];
+        } while (this._nextFigure == this._currentFigure);
 
-        this.nextFigure.row = 2;
-        this.nextFigure.col = Math.floor(this.gridSecondary.cols / 2);
-        this.nextFigure.setStateAndUpdate(Math.floor(Math.random() * this.nextFigure.numberOfStates));
+        this._nextFigure.row = Math.floor(this._gridSecondary._rows / 2);
+        this._nextFigure.col = Math.floor(this._gridSecondary._cols / 2);
+        this._nextFigure.setStateAndUpdate(Math.floor(Math.random() * this._nextFigure.numberOfStates));
 
-        this.gridSecondary.fillGridSolidColor(Constants.BLACK_COLOR);
-        this.gridSecondary.drawFigure(this.nextFigure, Constants.YELLOW_COLOR);
+        this._gridSecondary.drawGrid(Constants.SEC_BG_COLOR, Constants.SEC_GRID_COLOR);
+        this._gridSecondary.drawFigureWithGrid(this._nextFigure, Constants.YELLOW_COLOR, Constants.SEC_GRID_COLOR);
 
         var i, j;
-        for (i = 0; i < this.gridMain.rows; i++)
-            for (j = 0; j < this.gridMain.cols; j++)
-                this.glasse[i * this.gridMain.cols + j] = true;
+        for (i = 0; i < this._gridMain._rows; i++)
+            for (j = 0; j < this._gridMain._cols; j++)
+                this._glasseBuffer[i * this._gridMain._cols + j] = true;
 
-        this.gridMain.fillGridSolidColor(Constants.BLACK_COLOR);
+        this._gridMain.fillGridSolidColor(Constants.BLACK_COLOR);
 
-        this.score = 0;
-        this.scoreText.text = "Score: " + this.score;
+        this._score = 0;
+        // this._scoreText.text = "Score: " + this._score;
 
-        this.gridSecondary.scene.addChild(this.scoreText);
-        this.scoreText.position.x = 20;
-        this.scoreText.position.y = 120;
+        // this._gridSecondary._scene.addChild(this._scoreText);
+        // this._scoreText.position.x = 20;
+        // this._scoreText.position.y = 120;
     };
+
+    Logic.prototype.initUserControl = function() {
+            window.addEventListener("keydown", this._onPressDownEvent.bind(this));
+        };
 
     Logic.prototype.oneIterate = function () {
         if (this._time >= 6) {
-            // =================================
-            if (this.needRotate) {
+            if (this._needRotate) {
                 this._tryRotateAndRedraw();
-                this.needRotate = false;
+                this._needRotate = false;
             }
 
-            if (this._canMoveDown(this.currentFigure)) {
+            if (this._canMoveDown(this._currentFigure)) {
                 this._moveDownFigureAndRedraw();
             } else if (this._isFinish()) {
-                alert("Your score: " + this.score);
+                alert("Your score: " + this._score);
                 this.init();
             } else {
                 this._fillGlass();
                 this._checkGlass();
                 this._newFalling();
             }
-            // =================================
+
             this._time = 0;
         }
 
         this._time++;
     };
 
-    Logic.prototype.onPressDownEvent = function (event) {
+    Logic.prototype._onPressDownEvent = function (event) {
         switch (event.keyCode) {
             case Constants.LEFT_KEY:
                 this._tryMoveLeftAndRedraw();
@@ -120,54 +99,49 @@ define(
                 this._tryMoveRightAndRedraw();
                 break;
             case Constants.UP_KEY:
-                this.needRotate = true;
+                this._needRotate = true;
                 break;
             case Constants.DOWN_KEY:
+                this._time += 10;
                 break;
         }
     };
 
+    Logic.prototype._moveDownFigureAndRedraw = function () {
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.BLACK_COLOR, Constants.BLACK_COLOR);
+            this._currentFigure.moveDown();
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.YELLOW_COLOR, Constants.BLACK_COLOR);
+        };
+
     Logic.prototype._tryMoveLeftAndRedraw = function () {
-        if (this._canMoveLeft(this.currentFigure)) {
-            this.gridMain.drawFigure(this.currentFigure, 0x000000);
-            this.currentFigure.moveLeft();
-            this.gridMain.drawFigure(this.currentFigure, 0xffff00);
+        if (this._canMoveLeft(this._currentFigure)) {
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.BLACK_COLOR, Constants.BLACK_COLOR);
+            this._currentFigure.moveLeft();
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.YELLOW_COLOR, Constants.BLACK_COLOR);
         }
     };
 
     Logic.prototype._tryMoveRightAndRedraw = function () {
-        if (this._canMoveRight(this.currentFigure)) {
-            this.gridMain.drawFigure(this.currentFigure, 0x000000);
-            this.currentFigure.moveRight();
-            this.gridMain.drawFigure(this.currentFigure, 0xffff00);
+        if (this._canMoveRight(this._currentFigure)) {
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.BLACK_COLOR, Constants.BLACK_COLOR);
+            this._currentFigure.moveRight();
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.YELLOW_COLOR, Constants.BLACK_COLOR);
         }
     };
 
     Logic.prototype._tryRotateAndRedraw = function () {
-        if (this._canRotate(this.currentFigure)) {
-            this.gridMain.drawFigure(this.currentFigure, 0x000000);
-            this.currentFigure.rotateClockWise();
-            this.gridMain.drawFigure(this.currentFigure, 0xffff00);
+        if (this._canRotate(this._currentFigure)) {
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.BLACK_COLOR, Constants.BLACK_COLOR);
+            this._currentFigure.rotateClockWise();
+            this._gridMain.drawFigureWithGrid(this._currentFigure, Constants.YELLOW_COLOR, Constants.BLACK_COLOR);
         }
-    };
-
-    Logic.prototype._isFinish = function () {
-        return this.currentFigure.partOfMe.some(function (square) {
-            return square.row === 0;
-        });
-    };
-
-    Logic.prototype._moveDownFigureAndRedraw = function () {
-        this.gridMain.drawFigure(this.currentFigure, 0x000000);
-        this.currentFigure.moveDown();
-        this.gridMain.drawFigure(this.currentFigure, 0xffff00);
     };
 
     Logic.prototype._canMoveDown = function (figure) {
         var self = this;
 
         return figure.partOfMe.every(function (square) {
-            return self.glasse[(square.row + 1) * self.gridMain.cols + square.col];
+            return self._glasseBuffer[(square.row + 1) * self._gridMain._cols + square.col];
         });
     };
 
@@ -175,7 +149,7 @@ define(
         var self = this;
 
         return figure.partOfMe.every(function (square) {
-            return self.glasse[square.row * self.gridMain.cols + square.col - 1] &&
+            return self._glasseBuffer[square.row * self._gridMain._cols + square.col - 1] &&
                 (square.col - 1) >= 0;
         });
     };
@@ -184,8 +158,8 @@ define(
         var self = this;
 
         return figure.partOfMe.every(function (square) {
-            return self.glasse[square.row * self.gridMain.cols + square.col + 1] &&
-                (square.col + 1) < self.gridMain.cols;
+            return self._glasseBuffer[square.row * self._gridMain._cols + square.col + 1] &&
+                (square.col + 1) < self._gridMain._cols;
         });
     };
 
@@ -196,38 +170,45 @@ define(
         figure.rotateClockWise();
 
         var result = figure.partOfMe.every(function (square) {
-            return self.glasse[square.row * self.gridMain.cols + square.col] &&
-                square.col >= 0 && square.col < self.gridMain.cols;
+            return self._glasseBuffer[square.row * self._gridMain._cols + square.col] &&
+                square.col >= 0 && square.col < self._gridMain._cols;
         });
 
+        // restore original state
         figure.setStateAndUpdate(originState);
-
         return result;
     };
 
-    Logic.prototype._newFalling = function () {
-        this.gridSecondary.drawFigure(this.nextFigure, Constants.BLACK_COLOR);
+    Logic.prototype._isFinish = function () {
+        return this._currentFigure.partOfMe.some(function (square) {
+            return square.row === 0;
+        });
+    };
 
-        this.currentFigure = this.nextFigure;
-        this.nextFigure.row = 0;
-        this.nextFigure.col = Math.floor(this.gridMain.cols / 2);
+    Logic.prototype._newFalling = function () {
+        // TODO simplify
+        this._gridSecondary.drawFigureWithGrid(this._nextFigure, Constants.SEC_BG_COLOR, Constants.SEC_GRID_COLOR);
+
+        this._currentFigure = this._nextFigure;
+        this._nextFigure.row = 0;
+        this._nextFigure.col = Math.floor(this._gridMain._cols / 2);
 
         do {
-            this.nextFigure = this.figures[Math.floor(Math.random() * this.figures.length)];
-        } while (this.nextFigure == this.currentFigure);
+            this._nextFigure = this._figures[Math.floor(Math.random() * this._figures.length)];
+        } while (this._nextFigure == this._currentFigure);
 
-        this.nextFigure.row = 2;
-        this.nextFigure.col = Math.floor(this.gridSecondary.cols / 2);
-        this.nextFigure.setStateAndUpdate(Math.floor(Math.random() * this.nextFigure.numberOfStates));
+        this._nextFigure.row = Math.floor(this._gridSecondary._rows / 2);
+        this._nextFigure.col = Math.floor(this._gridSecondary._cols / 2);
+        this._nextFigure.setStateAndUpdate(Math.floor(Math.random() * this._nextFigure.numberOfStates));
 
-        this.gridSecondary.drawFigure(this.nextFigure, Constants.YELLOW_COLOR);
+        this._gridSecondary.drawFigureWithGrid(this._nextFigure, Constants.YELLOW_COLOR, Constants.SEC_GRID_COLOR);
     };
 
     Logic.prototype._fillGlass = function () {
         var self = this;
 
-        this.currentFigure.partOfMe.forEach(function (square) {
-            self.glasse[square.row * self.gridMain.cols + square.col] = false;
+        this._currentFigure.partOfMe.forEach(function (square) {
+            self._glasseBuffer[square.row * self._gridMain._cols + square.col] = false;
         });
     };
 
@@ -237,36 +218,40 @@ define(
 
         var collapseRows = [];
 
-        for (i = 0; i < this.gridMain.rows; i++) {
-            for (j = 0; j < this.gridMain.cols; j++) {
-                if (this.glasse[i * this.gridMain.cols + j])
+        for (i = 0; i < this._gridMain._rows; i++) {
+            for (j = 0; j < this._gridMain._cols; j++) {
+                if (this._glasseBuffer[i * this._gridMain._cols + j])
                     break;
             }
 
-            if (j == this.gridMain.cols)
+            if (j == this._gridMain._cols)
                 collapseRows.push(i);
         }
 
         if (collapseRows.length != 0) {
+            // collapse
             collapseRows.forEach(function (row) {
                 for (i = row; i > 0; i--)
-                    for (j = 0; j < self.gridMain.cols; j++)
-                        self.glasse[i * self.gridMain.cols + j] = self.glasse[(i - 1) * self.gridMain.cols + j];
+                    for (j = 0; j < self._gridMain._cols; j++)
+                        self._glasseBuffer[i * self._gridMain._cols + j] = self._glasseBuffer[(i - 1) * self._gridMain._cols + j];
             });
 
-            this.gridMain.fillGridSolidColor(Constants.BLACK_COLOR);
+            // fill of glass default color
+            this._gridMain.fillGridSolidColor(Constants.BLACK_COLOR);
 
-            for (i = 0; i < this.gridMain.rows; i++) {
-                for (j = 0; j < this.gridMain.cols; j++) {
-                    if (!this.glasse[i * this.gridMain.cols + j])
-                        this.gridMain.drawCell(i, j, Constants.YELLOW_COLOR);
+            // redraw new _scene after collapse
+            for (i = 0; i < this._gridMain._rows; i++) {
+                for (j = 0; j < this._gridMain._cols; j++) {
+                    if (!this._glasseBuffer[i * this._gridMain._cols + j])
+                        this._gridMain.drawCellWithBorder(i, j, Constants.YELLOW_COLOR, Constants.BLACK_COLOR);
                 }
             }
 
+            // recalculate _score
             for (i = 0; i < collapseRows.length; i++)
-                this.score += (i + 1) * 10;
+                this._score += (i + 1) * 10;
 
-            this.scoreText.text = "Score: " + this.score;
+            // this._scoreText.text = "Score: " + this._score;
         }
     };
 

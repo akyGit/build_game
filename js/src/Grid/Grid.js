@@ -1,30 +1,34 @@
-/**
- * Created by Aky on 14.09.2016.
- */
 define(['./GridCell'], function (GridCell) {
     function Grid(width, height, cellSize, scene) {
-        this.width = width;
-        this.height = height;
-        this.cellSize = cellSize;
-        this.scene = scene;
+        var _width = width;
+        var _height = height;
+        var _cellSize = cellSize;
+        var _scene = scene;
 
-        this.cells = [];
-        this.rows = Math.floor(this.height / cellSize);
-        this.cols = Math.floor(this.width / cellSize);
+        this._cells = [];
+        this._rows = Math.floor(_height / _cellSize);
+        this._cols = Math.floor(_width / _cellSize);
 
         var i, j;
-        for (i = 0; i < this.rows; i++)
-            for (j = 0; j < this.cols; j++)
-                this.cells[i * this.cols + j] = new GridCell(j * this.cellSize, i * this.cellSize, this.cellSize, this.scene);
+        for (i = 0; i < this._rows; i++)
+            for (j = 0; j < this._cols; j++)
+                this._cells[i * this._cols + j] = new GridCell(j * _cellSize, i * _cellSize, _cellSize, _scene);
     }
 
     Grid.prototype.constructor = Grid;
 
     Grid.prototype.drawCell = function (row, col, color) {
-        if (this.cells[row * this.cols + col] === undefined)
+        if (this._cells[row * this._cols + col] === undefined)
             return;
 
-        this.cells[row * this.cols + col].draw(color);
+        this._cells[row * this._cols + col].draw(color);
+    };
+
+    Grid.prototype.drawCellWithBorder = function (row, col, color, borderColor) {
+        if (this._cells[row * this._cols + col] === undefined)
+            return;
+
+        this._cells[row * this._cols + col].drawWithBorder(color, borderColor);
     };
 
     Grid.prototype.drawFigure = function (figure, color) {
@@ -34,12 +38,26 @@ define(['./GridCell'], function (GridCell) {
         });
     };
 
+    Grid.prototype.drawFigureWithGrid = function (figure, color, gridColor) {
+        var self = this;
+        figure.partOfMe.forEach(function (square) {
+            self.drawCellWithBorder(square.row, square.col, color, gridColor);
+        });
+    };
+
+    Grid.prototype.drawGrid = function(bgColor, gridColor) {
+        var i, j;
+        for (i = 0; i < this._rows; i++)
+            for (j = 0; j < this._cols; j++)
+                this.drawCellWithBorder(i, j, bgColor, gridColor);
+    };
+
     Grid.prototype.fillGridSolidColor = function (color) {
         var self = this;
 
         var i, j;
-        for (i = 0; i < this.rows; i++)
-            for (j = 0; j < this.cols; j++)
+        for (i = 0; i < this._rows; i++)
+            for (j = 0; j < this._cols; j++)
                 self.drawCell(i, j, color);
     };
 

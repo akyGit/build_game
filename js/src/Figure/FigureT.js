@@ -1,6 +1,3 @@
-/**
- * Created by Aky on 14.09.2016.
- */
 define(['./FigurePart', './Figure'], function(FigurePart, Figure) {
     function FigureT(row, col) {
         Figure.call(this, row, col, 4);

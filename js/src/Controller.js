@@ -1,26 +1,23 @@
-/**
- * Created by Aky on 14.09.2016.
- */
 define(['Grid/Grid', 'Logic'], function(Grid, Logic) {
     function Controller() {
-        this.sceneWidth = 300;
-        this.sceneHeight = this.sceneWidth * 2;
+        var SCENE_WIDTH = 300;
+        var SCENE_HEIGHT = SCENE_WIDTH * 2;
 
-        this.sceneSecondaryWidth = 180;
-        this.sceneSecondaryHeight = 180;
+        var SCENE_WIDTH_SECONDARY = 140;
+        var SCENE_HEIGHT_SECONDARY = 140;
 
-        var cellSize = 20;
+        var CELL_SIZE = 20;
 
-        this.rendererMain = new PIXI.autoDetectRenderer(this.sceneWidth, this.sceneHeight);
-        this.rendererSecondary = new PIXI.autoDetectRenderer(this.sceneSecondaryWidth, this.sceneSecondaryHeight);
+        this._rendererMain = new PIXI.autoDetectRenderer(SCENE_WIDTH, SCENE_HEIGHT);
+        this._rendererSecondary = new PIXI.autoDetectRenderer(SCENE_WIDTH_SECONDARY, SCENE_HEIGHT_SECONDARY);
 
-        this.sceneMain = new PIXI.Graphics();
-        this.sceneSecondary = new PIXI.Graphics();
+        this._sceneMain = new PIXI.Graphics();
+        this._sceneSecondary = new PIXI.Graphics();
 
-        this.gridMain = new Grid(this.sceneWidth, this.sceneHeight, cellSize, this.sceneMain);
-        this.gridSecondary = new Grid(this.sceneSecondaryWidth, this.sceneSecondaryHeight, cellSize, this.sceneSecondary);
+        var gridMain = new Grid(SCENE_WIDTH, SCENE_HEIGHT, CELL_SIZE, this._sceneMain);
+        var gridSecondary = new Grid(SCENE_WIDTH_SECONDARY, SCENE_HEIGHT_SECONDARY, CELL_SIZE, this._sceneSecondary);
 
-        this.logic = new Logic(this.gridMain, this.gridSecondary);
+        this._logic = new Logic(gridMain, gridSecondary);
     }
 
     Controller.prototype.constructor = Controller;
@@ -28,29 +25,27 @@ define(['Grid/Grid', 'Logic'], function(Grid, Logic) {
     Controller.prototype.startAnimate = function () {
         var self = this;
 
-        document.getElementById("main").appendChild(this.rendererMain.view);
-        document.getElementById("secondary").appendChild(this.rendererSecondary.view);
+        document.getElementById("main").appendChild(this._rendererMain.view);
+        document.getElementById("secondary").appendChild(this._rendererSecondary.view);
+        document.getElementById("music").play();
+        document.getElementById("music").loop = true;
 
-        this.logic.init();
-        this._addKeyboardListener();
+        this._logic.init();
+        this._logic.initUserControl();
 
         animateMain();
         animateSecondary();
 
         function animateMain() {
             requestAnimationFrame(animateMain);
-            self.logic.oneIterate();
-            self.rendererMain.render(self.sceneMain);
+            self._logic.oneIterate();
+            self._rendererMain.render(self._sceneMain);
         }
 
         function animateSecondary() {
             requestAnimationFrame(animateSecondary);
-            self.rendererSecondary.render(self.sceneSecondary);
+            self._rendererSecondary.render(self._sceneSecondary);
         }
-    };
-
-    Controller.prototype._addKeyboardListener = function () {
-        window.addEventListener("keydown", this.logic.onPressDownEvent.bind(this.logic));
     };
 
     return Controller;

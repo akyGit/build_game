@@ -1,6 +1,3 @@
-/**
- * Created by Aky on 14.09.2016.
- */
 define([], function() {
    return {
     // colors
@@ -10,6 +7,10 @@ define([], function() {
     GREEN_COLOR: 0x00FF00,
     BLUE_COLOR: 0x0000FF,
     YELLOW_COLOR: 0xFFFF00,
+
+    // custom colors
+    SEC_GRID_COLOR: 0x7A6C6C,
+    SEC_BG_COLOR: 0x333333,
 
     // key codes
     LEFT_KEY: 37,

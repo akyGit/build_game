@@ -1,28 +1,49 @@
-/**
- * Created by Aky on 15.09.2016.
- */
-var gulp = require('gulp');
-var bower = require('gulp-bower');
-var concat = require('gulp-concat');
-var rename = require('gulp-rename');
-var uglify = require('gulp-uglify');
-var requirejsOptimize = require('gulp-requirejs-optimize');
+var gulp    = require('gulp'),
+    bower   = require('gulp-bower'),
+    concat  = require('gulp-concat'),
+    rename  = require('gulp-rename'),
+    uglify  = require('gulp-uglify'),
+    changed = require('gulp-changed'),
+    maps    = require('gulp-sourcemaps'),
+    clean   = require( 'gulp-clean' ),
+    requirejsOptimize = require('gulp-requirejs-optimize');
+
+var SRC         = "./js/src/**/*.js",
+    DEST        = "./js/build",
+    DEST_BIN    = DEST + "/bin",
+    CONCAT_NAME = "build_game.js",
+    MINIFY_NAME = "build_game.min.js";
 
 gulp.task('bower', function() {
     return bower();
 });
 
-gulp.task('minification', function() {
-    gulp.src("./js/src/**/*.js").
-        pipe(requirejsOptimize()).
-        pipe(gulp.dest("./js/build")).
-        pipe(concat("build_game.js")).
-        pipe(gulp.dest("./js/build")).
-        pipe(rename("build_game.min.js")).
-        pipe(uglify()).
-        pipe(gulp.dest("./js/build"));
+gulp.task('concat:js', function(){
+    return gulp.src(SRC)
+        .pipe(requirejsOptimize())
+        .pipe(concat(CONCAT_NAME))
+        .pipe(gulp.dest(DEST_BIN));
 });
 
-gulp.task('default', ['bower','minification'], function() {
+gulp.task('minify:js', ['concat:js'], function() {
+    return gulp.src(DEST_BIN + '/' + CONCAT_NAME)
+        .pipe(maps.init())
+        .pipe(rename(MINIFY_NAME))
+        .pipe(uglify())
+        .pipe(maps.write("./"))
+        .pipe(gulp.dest(DEST_BIN));
+});
+
+gulp.task('clean', function() {
+   return gulp.src(DEST, { read: false })
+    .pipe(clean());
+});
+
+gulp.task('watch', function(){
+   return gulp.watch(SRC, ['minify:js'],function(event){
+   });
+});
+
+gulp.task('default', ['clean','bower','minify:js'], function() {
 
 });

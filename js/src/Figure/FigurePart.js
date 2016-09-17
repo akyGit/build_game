@@ -1,6 +1,3 @@
-/**
- * Created by Aky on 14.09.2016.
- */
 define([], function(){
     function FigurePart(row, col) {
         this.row = row || 0;
